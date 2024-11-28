@@ -1,0 +1,29 @@
+version: "3"
+services:
+  postgress-service:
+    image: postgres:latest
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ashish
+      POSTGRES_PASSWORD: ashish@123
+      POSTGRES_DB: employee_db
+    volumes:
+      - ./init_script:/docker-entrypoint-initdb.d
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - bank-docker-network
+
+  adminer-service:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    networks:
+      - bank-docker-network
+
+networks:
+  bank-docker-network:
+    driver: bridge
