@@ -2,6 +2,7 @@ package com.bankManagementSystem.bankManagementSystem.service.implmentation;
 
 import com.bankManagementSystem.bankManagementSystem.dto.EmployeeDto;
 import com.bankManagementSystem.bankManagementSystem.entity.EmployeeEntity;
+import com.bankManagementSystem.bankManagementSystem.exception.DuplicateEmailException;
 import com.bankManagementSystem.bankManagementSystem.exception.ResourceNotFoundException;
 import com.bankManagementSystem.bankManagementSystem.mapper.EmployeeMapper;
 import com.bankManagementSystem.bankManagementSystem.repository.EmployeeRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -40,4 +42,33 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<EmployeeEntity> employeeEntityList = employeeRepository.findAll();
         return employeeEntityList.stream().map( EmployeeEntity -> EmployeeMapper.mapEmployeeEntityToEmployeeDto(EmployeeEntity)).collect(Collectors.toList());
     }
+
+    @Override
+    public EmployeeDto updateEmployee(EmployeeDto employeeDto) {
+        EmployeeEntity existingData = employeeRepository.findById(employeeDto.getEmployeeId()).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", employeeDto.getEmployeeId())
+        );
+        // setting the new data to the existing one
+        existingData.setEmployeeFirstName(employeeDto.getEmployeeFirstName());
+        existingData.setEmployeeLastName(employeeDto.getEmployeeLastName());
+        existingData.setEmployeeEmail(employeeDto.getEmployeeEmail());
+
+        Optional<EmployeeEntity> ifEmailExist = employeeRepository.findByEmployeeEmail(employeeDto.getEmployeeEmail());     // check if email exist in DB
+        if(ifEmailExist.isPresent()){
+            throw new DuplicateEmailException(String.format("Email: %s, already available.", employeeDto.getEmployeeEmail()));
+        }
+
+        // saving the data
+        EmployeeEntity savedUser = employeeRepository.save(existingData);
+        return EmployeeMapper.mapEmployeeEntityToEmployeeDto(savedUser);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        EmployeeEntity existingData = employeeRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", userId)
+        );
+        employeeRepository.deleteById(userId);
+    }
+
 }

@@ -9,5 +9,7 @@ public interface EmployeeService {
      EmployeeDto addEmployee(EmployeeDto employeeDto);
      EmployeeDto getEmployeeById(Long employeeId);
      List<EmployeeDto> getAllEmployees();
+     EmployeeDto updateEmployee(EmployeeDto employeeDto);
+     void deleteUser(Long employeeId);
 
 }
