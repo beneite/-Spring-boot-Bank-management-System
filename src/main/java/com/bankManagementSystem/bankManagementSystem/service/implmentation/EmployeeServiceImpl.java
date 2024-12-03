@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -32,5 +33,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 () -> new ResourceNotFoundException("User", "id", id)
         );
         return EmployeeMapper.mapEmployeeEntityToEmployeeDto(employeeEntity);
+    }
+
+    @Override
+    public List<EmployeeDto> getAllEmployees() {
+        List<EmployeeEntity> employeeEntityList = employeeRepository.findAll();
+        return employeeEntityList.stream().map( EmployeeEntity -> EmployeeMapper.mapEmployeeEntityToEmployeeDto(EmployeeEntity)).collect(Collectors.toList());
     }
 }
